@@ -18,5 +18,8 @@ $(BIN): $(OBJS)
 test: $(BIN)
 	./$(BIN) "1 1 +"
 
+format:
+	clang-format --verbose -i *.{c,h}
+
 clean:
 	$(RM) $(OBJS) $(BIN)
