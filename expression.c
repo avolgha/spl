@@ -1,6 +1,7 @@
 #include "expression.h"
 
 #include <ctype.h>
+#include <errno.h>
 #include <string.h>
 
 int binary_operation(stack_t *stack,
@@ -18,12 +19,14 @@ int binary_operation(stack_t *stack,
 stack_item_t op_add(stack_item_t a, stack_item_t b) { return a + b; }
 stack_item_t op_sub(stack_item_t a, stack_item_t b) { return a - b; }
 stack_item_t op_mul(stack_item_t a, stack_item_t b) { return a * b; }
-stack_item_t op_mod(stack_item_t a, stack_item_t b) { return a % b; }
+stack_item_t op_div(stack_item_t a, stack_item_t b) { return a / b; } // TODO
+stack_item_t op_mod(stack_item_t a, stack_item_t b) { return fmod(a, b); }
 
-int parse_expression(stack_t *stack, char src[], size_t *i) {
+int parse_expression(stack_t *dest, char src[], size_t *i) {
   size_t srclen = strlen(src);
-  if (i == NULL || *i < 0 || *i >= srclen)
+  if (i == NULL || *i < 0 || *i >= srclen) {
     return -1;
+  }
 
   char buf[32]; // i dont suspect users to input a number of (hopefully) only
                 // size 10^32-1 ...
@@ -47,9 +50,17 @@ int parse_expression(stack_t *stack, char src[], size_t *i) {
 
       buf[buf_i] = '\0';
 
-      int32_t num = strtol(buf, NULL, 10);
+      char *e;
+      errno = 0;
+      stack_item_t num = strtold(buf, &e);
+      if (*e != '\0' || errno != 0) {
+        printf("error: could not parse input as long double. (input=\"%s\")",
+               buf);
+        return -1;
+      }
+
       memset(buf, 0, sizeof(buf));
-      stack_push(stack, num);
+      stack_push(dest, num);
       continue;
     }
 
@@ -62,24 +73,36 @@ int parse_expression(stack_t *stack, char src[], size_t *i) {
         return -1;
       }
 
-      int result = parse_expression(stack, src, i);
+      stack_t expr_stack = {.items = {0}, .length = 0};
+      int result = parse_expression(&expr_stack, src, i);
       if (result != 0)
         return result;
+      if (expr_stack.length != 1) {
+        printf("error: all items on the stack need to be used. "
+               "(expression.c:83)\n");
+        stack_dump(&expr_stack);
+        return -1;
+      }
+      stack_append(dest, &expr_stack);
       break;
     case '+':
-      if (binary_operation(stack, op_add) != 0)
-        return 1;
-      break;
-    case '*':
-      if (binary_operation(stack, op_mul) != 0)
-        return 1;
-      break;
-    case '%':
-      if (binary_operation(stack, op_mod) != 0)
+      if (binary_operation(dest, op_add) != 0)
         return 1;
       break;
     case '-':
-      if (binary_operation(stack, op_sub) != 0)
+      if (binary_operation(dest, op_sub) != 0)
+        return 1;
+      break;
+    case '*':
+      if (binary_operation(dest, op_mul) != 0)
+        return 1;
+      break;
+    case '/':
+      if (binary_operation(dest, op_div) != 0)
+        return 1;
+      break;
+    case '%':
+      if (binary_operation(dest, op_mod) != 0)
         return 1;
       break;
     default:

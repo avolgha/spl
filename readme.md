@@ -8,7 +8,8 @@ simple math equation solver written in c.
 - subtraction
 - multiplication
 - modulo
-- parenthesis (you dont even have to close them...)
+- [postfix notation](https://w.wiki/8KhJ)
+- parenthesis (why would you use them in postfix notation?)
 - probably memory leaks?
 
 ## roadmap

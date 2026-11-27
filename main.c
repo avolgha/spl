@@ -5,24 +5,24 @@
 #include "expression.h"
 #include "stack.h"
 
-// TODO: implement floating point numbers.
-
 int main(int argc, char **argv) {
   if (argc < 2) {
     printf("usage: %s <src>\n", argv[0]);
     return 1;
   }
 
-  stack_t stack = {.items = {}, .length = 0};
-  size_t i;
-  size_t parse_result = parse_expression(&stack, argv[1], &i);
+  stack_t stack = {.items = {0}, .length = 0};
+  size_t i = 0;
+  int parse_result = parse_expression(&stack, argv[1], &i);
   if (parse_result < 0) {
     stack_dump(&stack);
     return -parse_result;
   }
 
   if (parse_result != 0 || stack.length > 1) {
-    printf("error: all items on the stack need to be used.\n");
+    printf("error: all items on the stack need to be used. (%s:%d :: "
+           "parse_result=%d :: stack.length=%zu)\n",
+           __FILE__, __LINE__, parse_result, stack.length);
     stack_dump(&stack);
     return 1;
   }
@@ -32,6 +32,6 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  printf("result: %d\n", stack.items[0]);
+  printf("result: %Lf\n", stack.items[0]);
   return 0;
 }
