@@ -14,7 +14,7 @@ simple math equation solver written in c.
 
 ## roadmap
 
-- [ ] implement floating point numbers
+- [x] implement floating point numbers
 - [ ] add a RNG
 
 ## self compile
