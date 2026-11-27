@@ -16,8 +16,8 @@ $(BIN): $(OBJS)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-test: $(BIN)
-	./$(BIN) "1 1 +"
+test: test.sh $(BIN)
+	./test.sh
 
 format:
 	clang-format --verbose -i *.{c,h}

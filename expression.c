@@ -19,7 +19,7 @@ int binary_operation(stack_t *stack,
 stack_item_t op_add(stack_item_t a, stack_item_t b) { return a + b; }
 stack_item_t op_sub(stack_item_t a, stack_item_t b) { return a - b; }
 stack_item_t op_mul(stack_item_t a, stack_item_t b) { return a * b; }
-stack_item_t op_div(stack_item_t a, stack_item_t b) { return a / b; } // TODO
+stack_item_t op_div(stack_item_t a, stack_item_t b) { return a / b; }
 stack_item_t op_mod(stack_item_t a, stack_item_t b) { return fmod(a, b); }
 
 int parse_expression(stack_t *dest, char src[], size_t *i) {
@@ -28,19 +28,20 @@ int parse_expression(stack_t *dest, char src[], size_t *i) {
     return -1;
   }
 
-  char buf[32]; // i dont suspect users to input a number of (hopefully) only
-                // size 10^32-1 ...
   while (1) {
     if (src[*i] == ')' || src[*i] == '\0' || *i >= srclen) {
       break;
     } else if (isdigit(src[*i]) ||
                (src[*i] == '-' && *i + 1 < srclen && isdigit(src[*i + 1]))) {
+      char buf[64];
       size_t buf_i = 0;
       if (src[*i] == '-') {
         buf[0] = '-';
         buf_i++;
         (*i)++;
       }
+
+      // TODO: let the user input decimal values with points.
 
       while (isdigit(src[*i]) && *i < srclen) {
         buf[buf_i] = src[*i];
@@ -114,5 +115,5 @@ int parse_expression(stack_t *dest, char src[], size_t *i) {
     (*i)++;
   }
 
-  return strlen(buf);
+  return 0;
 }
