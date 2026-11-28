@@ -1,4 +1,5 @@
 #include "stack.h"
+#include <stdio.h>
 
 void stack_dump(stack_t *stack) {
   printf("===== DUMP STACK =====\n");

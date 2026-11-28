@@ -21,7 +21,7 @@ test: test.sh $(BIN)
 	./test.sh
 
 format:
-	clang-format --verbose -i *.{c,h}
+	clang-format --verbose -i src/*.{c,h}
 
 clean:
 	$(RM) $(OBJS) $(BIN)

@@ -1,6 +1,8 @@
 #include "expression.h"
 #include <ctype.h>
 #include <errno.h>
+#include <math.h>
+#include <stdio.h>
 #include <string.h>
 
 #define NUM_BUF_SIZE 128
