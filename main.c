@@ -19,10 +19,17 @@ int main(int argc, char **argv) {
     return -parse_result;
   }
 
-  if (parse_result != 0 || stack.length > 1) {
-    printf("error: all items on the stack need to be used. (%s:%d :: "
-           "parse_result=%d :: stack.length=%zu)\n",
-           __FILE__, __LINE__, parse_result, stack.length);
+  if (parse_result > 0) {
+    printf("error: unknown error occurred in expression parser. got return "
+           "code %d.\n",
+           parse_result);
+    stack_dump(&stack);
+    return parse_result;
+  }
+
+  if (stack.length > 1) {
+    printf("error: all items on the stack need to be used. %zu remaining.\n",
+           stack.length);
     stack_dump(&stack);
     return 1;
   }

@@ -1,14 +1,15 @@
 #include "expression.h"
-
 #include <ctype.h>
 #include <errno.h>
 #include <string.h>
+
+#define NUM_BUF_SIZE 128
 
 int binary_operation(stack_t *stack,
                      stack_item_t (*func)(stack_item_t, stack_item_t)) {
   if (stack->length < 2) {
     printf("error: not enough arguments on the stack.\n");
-    return 1;
+    return -1;
   }
   stack_item_t *two = stack_pop(stack);
   stack_item_t *one = stack_pop(stack);
@@ -22,10 +23,26 @@ stack_item_t op_mul(stack_item_t a, stack_item_t b) { return a * b; }
 stack_item_t op_div(stack_item_t a, stack_item_t b) { return a / b; }
 stack_item_t op_mod(stack_item_t a, stack_item_t b) { return fmod(a, b); }
 
+int parse_number_to_buf(char src[], size_t *i, char *buf, size_t *buf_i) {
+  size_t srclen = strlen(src);
+  while (isdigit(src[*i]) && *i < srclen) {
+    if (*buf_i >= NUM_BUF_SIZE - 1) {
+      printf("error: only supports %d characters to represent numbers in "
+             "buffers.\n",
+             NUM_BUF_SIZE);
+      return 1;
+    }
+    buf[(*buf_i)++] = src[(*i)++];
+  }
+  return 0;
+}
+
 int parse_expression(stack_t *dest, char src[], size_t *i) {
   size_t srclen = strlen(src);
   if (i == NULL || *i < 0 || *i >= srclen) {
-    return -1;
+    printf(
+        "error: internal. expression parser got malformed index parameter.\n");
+    return 1;
   }
 
   while (1) {
@@ -33,7 +50,7 @@ int parse_expression(stack_t *dest, char src[], size_t *i) {
       break;
     } else if (isdigit(src[*i]) ||
                (src[*i] == '-' && *i + 1 < srclen && isdigit(src[*i + 1]))) {
-      char buf[64];
+      char buf[NUM_BUF_SIZE];
       size_t buf_i = 0;
       if (src[*i] == '-') {
         buf[0] = '-';
@@ -41,12 +58,14 @@ int parse_expression(stack_t *dest, char src[], size_t *i) {
         (*i)++;
       }
 
-      // TODO: let the user input decimal values with points.
+      if (parse_number_to_buf(src, i, buf, &buf_i) != 0)
+        return -1;
 
-      while (isdigit(src[*i]) && *i < srclen) {
-        buf[buf_i] = src[*i];
-        buf_i++;
+      if (src[*i] == '.') {
         (*i)++;
+        buf[buf_i++] = '.';
+        if (parse_number_to_buf(src, i, buf, &buf_i) != 0)
+          return -1;
       }
 
       buf[buf_i] = '\0';
@@ -88,23 +107,23 @@ int parse_expression(stack_t *dest, char src[], size_t *i) {
       break;
     case '+':
       if (binary_operation(dest, op_add) != 0)
-        return 1;
+        return -1;
       break;
     case '-':
       if (binary_operation(dest, op_sub) != 0)
-        return 1;
+        return -1;
       break;
     case '*':
       if (binary_operation(dest, op_mul) != 0)
-        return 1;
+        return -1;
       break;
     case '/':
       if (binary_operation(dest, op_div) != 0)
-        return 1;
+        return -1;
       break;
     case '%':
       if (binary_operation(dest, op_mod) != 0)
-        return 1;
+        return -1;
       break;
     default:
       printf("error: unknown operator '%c' (pos: %zu, code: %d).\n", src[*i],

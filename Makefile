@@ -24,3 +24,4 @@ format:
 
 clean:
 	$(RM) $(OBJS) $(BIN)
+
