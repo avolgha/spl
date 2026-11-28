@@ -7,6 +7,7 @@ simple math equation solver written in c.
 - addition
 - subtraction
 - multiplication
+- division
 - modulo
 - [postfix notation](https://w.wiki/8KhJ)
 - parenthesis (why would you use them in postfix notation?)

@@ -2,18 +2,19 @@ CC     := clang
 CFLAGS := -Wall -Wextra -Wshadow -pedantic
 LFLAGS := -lm
 
-SRCS   := $(wildcard *.c)
-OBJS   := $(SRCS:.c=.o)
+SRCS   := $(wildcard src/*.c)
+OBJS   := $(patsubst src/%.c,build/%.o,$(SRCS))
 BIN    := spl
 
-.PHONY: all test clean
+.PHONY: all test format clean
 
 all: $(BIN)
 
 $(BIN): $(OBJS)
 	$(CC) $(CFLAGS) $(LFLAGS) -o $@ $^
 
-%.o: %.c
+build/%.o: src/%.c
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 test: test.sh $(BIN)
