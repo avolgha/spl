@@ -16,6 +16,9 @@ simple math equation solver written in c.
 
 - [x] implement floating point numbers
 - [ ] add a RNG
+- [ ] add command line flags
+    - [ ] verbose output (print result for each operation as well)
+    - [ ] stack dump (enable or disable stack dumps on error messages. preferrably, the default should be no)
 
 ## self compile
 
